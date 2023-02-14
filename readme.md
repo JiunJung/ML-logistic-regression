@@ -1,3 +1,4 @@
 # ML-Logistic Regression
 
-You can learn how logistic regression works
+We will discuss about "How can we get the probability of certain class".
+
