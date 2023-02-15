@@ -1,7 +1,7 @@
 from knn_classification import *
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LogisticRegression
-from scipy.special import expit
+from scipy.special import expit, softmax
 
 # logistic regression will get this function :
 # z = a x (weight) + b x (length) + c x (diagonal) + d x (height) + e x (width) + f
@@ -54,5 +54,50 @@ print(decisions) # [-6.02927744  3.57123907 -5.26568906 -4.24321775 -6.0607117 ]
 # let's input these to sigmoid funcrion. It will return data between 0 and 1.
 print(expit(decisions)) # [0.00240145 0.97264817 0.00513928 0.01415798 0.00232731]
 
+
+
+# Let's do multiclass classification using logistic regression
+
+# Logistic regression uses repetitive algorithm.
+# Data we have is quite small. So, we should repeat 1000 times for better trainig.
+# And, LogisticRegression regulates square of coefficient like Ridge regression. But the difference is LogisticRegression has parameter C rather alpha.
+# The larger the C, the weaker the regulation. Rather, the larger the alpha, the stronger the regulation in Ridge regression.
+
+# Default value of C is 1. But we will set it as 20 to ease regulation.
+lr = LogisticRegression(C=20, max_iter=1000)
+lr.fit(train_scaled, train_target)
+print(lr.score(train_scaled, train_target)) # 0.9327731092436975
+print(lr.score(test_scaled, test_target))   # 0.925
+print(lr.predict(test_scaled[:5])) # ['Perch' 'Smelt' 'Pike' 'Roach' 'Perch']
+proba = lr.predict_proba(test_scaled[:5])
+print(np.round(proba, decimals=3))
+# [[0.    0.014 0.841 0.    0.136 0.007 0.003]
+#  [0.    0.003 0.044 0.    0.007 0.946 0.   ]
+#  [0.    0.    0.034 0.935 0.015 0.016 0.   ]
+#  [0.011 0.034 0.306 0.007 0.567 0.    0.076]
+#  [0.    0.    0.904 0.002 0.089 0.002 0.001]]
+
+print(lr.classes_) # ['Bream' 'Parkki' 'Perch' 'Pike' 'Roach' 'Smelt' 'Whitefish']
+
+# there are 7 equations. So, there are 7 z values.
+print(lr.coef_.shape,lr.intercept_.shape) #(7, 5) (7,)
+
+# The softmax function makes the sum of 7 values ​​equal to 1.
+decision = lr.decision_function(test_scaled[:5])
+print(np.round(decision, decimals=2))
+# [[ -6.5    1.03   5.16  -2.73   3.34   0.33  -0.63]
+#  [-10.86   1.93   4.77  -2.4    2.98   7.84  -4.26]
+#  [ -4.34  -6.23   3.17   6.49   2.36   2.42  -3.87]
+#  [ -0.68   0.45   2.65  -1.19   3.26  -5.75   1.26]
+#  [ -6.4   -1.99   5.82  -0.11   3.5   -0.11  -0.71]]
+# these are z values. we will change this value using softmax.
+
+proba = softmax(decision, axis=1)
+print(np.round(proba, decimals=3))
+# [[0.    0.014 0.841 0.    0.136 0.007 0.003]
+#  [0.    0.003 0.044 0.    0.007 0.946 0.   ]
+#  [0.    0.    0.034 0.935 0.015 0.016 0.   ]
+#  [0.011 0.034 0.306 0.007 0.567 0.    0.076]
+#  [0.    0.    0.904 0.002 0.089 0.002 0.001]]
 
 
